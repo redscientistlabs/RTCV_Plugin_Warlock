@@ -30,23 +30,24 @@ namespace Warlock
                     PluginSpec.UpdateSpec(message.objectValue as Dictionary<string, object>);
                     break;
                 case Routing.Commands.SAVE_INTERNAL_SAVESTATE:
-                    SavestateSystem.SaveInternalSaveState(message.objectValue.ToString());
+                    SavestateSystem.SaveInternalSaveState((string)message.objectValue);
 
                     break;
                 case Routing.Commands.LOAD_INTERNAL_SAVESTATE:
-                    //var data = message.objectValue as object[];
-                    //var key = data[0] as string;
-                    //bool resetScripts = (bool)data[1];
-                    SavestateSystem.LoadInternalSaveState(message.objectValue.ToString());// key,resetScripts);
+                    var data = message.objectValue as object[];
+                    var key = data[0] as string;
+                    bool resetScripts = (bool)data[1];
+                    SavestateSystem.LoadInternalSaveState(key);// key,resetScripts);
                     break;
                 case Routing.Commands.LOAD_STASHKEY:
-                    LoadAndRunStashKey(message.objectValue.ToString());
+                    LoadAndRunStashKey(((string)message.objectValue ?? ""));
                     break;
                 case Routing.Commands.LOAD_SCRIPT:
                     WarlockCore.Runner.LoadScript(message.objectValue.ToString());
+                    //WarlockCore.Runner.LoadScript((string)message.objectValue);
                     break;
                 case Routing.Commands.LOAD_STASHKEY_SAVESTATE:
-                    LoadAndRunStashKeySavestate(message.objectValue.ToString());
+                    LoadAndRunStashKeySavestate((string)message.objectValue);
                     break;
                 case Routing.Commands.RUN:
                     WarlockCore.RunThisSide();

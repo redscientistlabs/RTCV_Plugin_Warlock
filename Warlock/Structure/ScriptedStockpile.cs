@@ -6,7 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
+using System.Windows.Forms;
 
 namespace Warlock.Structure
 {
@@ -22,7 +23,7 @@ namespace Warlock.Structure
 
         public ScriptedStashKey GetStashKey(string key)
         {
-            return ScriptedStashKeys.FirstOrDefault(x => x.StashKeyRef.Alias == key);
+            return ScriptedStashKeys.FirstOrDefault(x => x.StashKeyAlias == key);
         }
 
         //Will be called on the UI side only
@@ -43,8 +44,20 @@ namespace Warlock.Structure
             //Load global scripts on EMU
             LocalNetCoreRouter.Route(Routing.Endpoints.EMU_SIDE, Routing.Commands.LOAD_GLOBAL_SCRIPTS, GlobalScriptsEMU, true);
 
-            //Load initial ScriptedStashKey
-            GetStashKey(InitialStashkey).Run();
+            //GetStashKey(InitialStashkey).Run();
+            //Load initial ScriptedStashKey'
+            var sk = GetStashKey(InitialStashkey);
+            if(sk == null)
+            {
+                SyncObjectSingleton.FormExecute(() =>
+                {
+                    MessageBox.Show("Author did not set initial stash key");
+                });
+            }
+            else
+            {
+                sk.Run();
+            }
         }
     }
 

@@ -77,8 +77,6 @@ namespace Warlock
             }
         }
 
-
-
         //[LunarBindFunction("Reset")]
         public static void Reset()
         {

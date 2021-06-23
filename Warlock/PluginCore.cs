@@ -44,18 +44,24 @@ namespace Warlock
                 connectorRTC = new PluginConnectorRTC();
                 S.GET<OpenToolsForm>().RegisterTool("Warlock", "Open Warlock Player", () =>
                 {
-                    var form = new WarlockEditor();
-                    S.SET<WarlockEditor>(form);
-                    form.Show();
-                    form.Activate();
+                    if((S.ISNULL<WarlockPlayer>() || S.GET<WarlockPlayer>().IsDisposed) && (S.ISNULL<WarlockEditor>() || S.GET<WarlockEditor>().IsDisposed))
+                    {
+                        var form = new WarlockPlayer();
+                        S.SET<WarlockPlayer>(form);
+                        form.Show();
+                        form.Activate();
+                    }
                 });
 
                 S.GET<OpenToolsForm>().RegisterTool("Warlock Editor", "Open Warlock Editor", () =>
                 {
-                    var form = new WarlockEditor();
-                    S.SET<WarlockEditor>(form);
-                    form.Show();
-                    form.Activate();
+                    if ((S.ISNULL<WarlockPlayer>() || S.GET<WarlockPlayer>().IsDisposed) && (S.ISNULL<WarlockEditor>() || S.GET<WarlockEditor>().IsDisposed))
+                    {
+                        var form = new WarlockEditor();
+                        S.SET<WarlockEditor>(form);
+                        form.Show();
+                        form.Activate();
+                    }
                 });
             }
             CurrentSide = side;

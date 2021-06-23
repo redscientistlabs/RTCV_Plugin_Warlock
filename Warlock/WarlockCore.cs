@@ -1,6 +1,6 @@
 ﻿using LunarBind;
 using LunarBind.Standards;
-using Newtonsoft.Json;
+using System.Text.Json;
 using RTCV.Common;
 using RTCV.CorruptCore;
 using RTCV.NetCore;
@@ -25,6 +25,14 @@ namespace Warlock
         internal static LuaScriptStandard Standard { get; private set; } = null;
         internal static ScriptBindings Bindings { get; set; } = null;
         internal static ScriptedStockpile ScriptedStockpile = new ScriptedStockpile();
+        private static bool _isRunning = false;
+        public static bool IsRunning {
+            get { return _isRunning; }
+            private set {
+                _isRunning = value;
+                RunningStatusChanged?.Invoke(value);
+            } }
+        public static event Action<bool> RunningStatusChanged;
 
         static string SavestateToLoad = null;
         static string StashkeyToLoad = null;
@@ -37,15 +45,27 @@ namespace Warlock
             Bindings.BindAssemblyFuncs(Assembly.GetExecutingAssembly());
             //bindings.BindTypeFuncs(typeof(WarlockCore));
             //bindings.BindTypeFuncs(typeof(WarlockCore));
-
-            Standard = new LuaScriptStandard(
-                new LuaFuncStandard("StepStart", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
-                new LuaFuncStandard("StepEnd", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
-                new LuaFuncStandard("StepPreCorrupt", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
-                new LuaFuncStandard("StepPostCorrupt", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
-                new LuaFuncStandard("LoadGameDone", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false)
-                );
-
+            if (PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client)
+            {
+                Standard = new LuaScriptStandard(
+                    new LuaFuncStandard("StepStart", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    new LuaFuncStandard("StepEnd", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    new LuaFuncStandard("StepPreCorrupt", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    new LuaFuncStandard("StepPostCorrupt", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    //new LuaFuncStandard("LoadGameDone", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    new LuaFuncStandard("BeforeLoadState", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    new LuaFuncStandard("AfterLoadState", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false)
+                    );
+            }
+            else
+            {
+                Standard = new LuaScriptStandard(
+                    //new LuaFuncStandard("LoadGameDone", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    new LuaFuncStandard("BeforeLoadState", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
+                    new LuaFuncStandard("AfterLoadState", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false)
+                    );
+            }
+            
             Runner = new HookedStateScriptRunner(Standard, Bindings);
         }
 
@@ -54,7 +74,7 @@ namespace Warlock
             Reset();
             ScriptedStockpile.Run();
             RunThisSide();
-            LocalNetCoreRouter.Route((PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Server ? Routing.Endpoints.EMU_SIDE : Routing.Endpoints.RTC_SIDE), Routing.Commands.RUN, true);
+            LocalNetCoreRouter.Route(Routing.Endpoints.EMU_SIDE, Routing.Commands.RUN, true);
         }
 
         public static void RunThisSide()
@@ -78,7 +98,6 @@ namespace Warlock
         {
             ResetInterrupts();
             StopScripts();
-            //Runner.Reset();
             Runner = new HookedStateScriptRunner(Standard, Bindings);
             SavestateSystem.Reset();
         }
@@ -94,19 +113,29 @@ namespace Warlock
 
         public static void StartScripts()
         {
-            StepActions.StepStart += StepActions_StepStart;
-            StepActions.StepEnd += StepActions_StepEnd;
-            StepActions.StepPreCorrupt += StepActions_StepPreCorrupt;
-            StepActions.StepPostCorrupt += StepActions_StepPostCorrupt;
+            if (IsRunning) return;
+            if (PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client)
+            {
+                StepActions.StepStart += StepActions_StepStart;
+                StepActions.StepEnd += StepActions_StepEnd;
+                StepActions.StepPreCorrupt += StepActions_StepPreCorrupt;
+                StepActions.StepPostCorrupt += StepActions_StepPostCorrupt;
+            }
+            IsRunning = true;
         }
 
         [LunarBindFunction("Warlock.StopScripts")]
         public static void StopScripts()
         {
-            StepActions.StepStart -= StepActions_StepStart;
-            StepActions.StepEnd -= StepActions_StepEnd;
-            StepActions.StepPreCorrupt -= StepActions_StepPreCorrupt;
-            StepActions.StepPostCorrupt -= StepActions_StepPostCorrupt;
+            if (!IsRunning) return;
+            if (PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client)
+            {
+                StepActions.StepStart -= StepActions_StepStart;
+                StepActions.StepEnd -= StepActions_StepEnd;
+                StepActions.StepPreCorrupt -= StepActions_StepPreCorrupt;
+                StepActions.StepPostCorrupt -= StepActions_StepPostCorrupt;
+            }
+            IsRunning = false;
         }
 
 
@@ -140,14 +169,36 @@ namespace Warlock
         {
             if (!InterruptCheck())
             {
-                if (PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client)
+                try
                 {
-                    new object();
+                    Runner.Execute(key);
                 }
-
-               Runner.Execute(key);
+                catch(Exception ex)
+                {
+                    WarlockCore.Reset();
+                    SyncObjectSingleton.FormExecute(() =>
+                    {
+                        MessageBox.Show(ex.Message, "Warlock Script Error", MessageBoxButtons.OK);
+                    });
+                }
             }
             InterruptCheck();
+        }
+
+        private static void ExecuteNoInterrupt(string key)
+        {
+            try
+            {
+                Runner.Execute(key);
+            }
+            catch (Exception ex)
+            {
+                WarlockCore.Reset();
+                SyncObjectSingleton.FormExecute(() =>
+                {
+                    MessageBox.Show(ex.Message, "Warlock Script Error", MessageBoxButtons.OK);
+                });
+            }
         }
 
 
@@ -166,7 +217,7 @@ namespace Warlock
                     if (clearScripts)
                     {
                         ClearCurrentScript();
-                        LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_STASHKEY, StashkeyToLoad, true);
+                        LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_STASHKEY, StashkeyToLoad, true);                      
                     }
                     else
                     {
@@ -175,8 +226,9 @@ namespace Warlock
                 }
                 else if (SavestateToLoad != null) 
                 {
-                    //if (clearScripts) ClearCurrentScript();
+                    ExecuteNoInterrupt("BeforeLoadState");
                     LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_INTERNAL_SAVESTATE, new object[] { SavestateToLoad, clearScripts }, true);
+                    ExecuteNoInterrupt("AfterLoadState");
                 }
                 ResetInterrupts();
                 return true;
@@ -201,10 +253,10 @@ namespace Warlock
         {
             interrupt = true;
             clearScripts = clearScript;
-            StashkeyToLoad = key?.ToString();
+            StashkeyToLoad = key?.ToString(); 
         }
 
-        
+
         internal static void ClearCurrentScript()
         {
             LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_SCRIPT, "", true);
@@ -216,7 +268,7 @@ namespace Warlock
             if (File.Exists(filename))
             {
                 var json = File.ReadAllText(filename);
-                ScriptedStockpile = JsonConvert.DeserializeObject<ScriptedStockpile>(json);
+                ScriptedStockpile = JsonSerializer.Deserialize<ScriptedStockpile>(json, new JsonSerializerOptions() { IncludeFields = true });
                 string sskFile = Path.Combine(Path.GetDirectoryName(filename), Path.GetFileNameWithoutExtension(filename) + ".sks");
                 await LoadStockpile(sskFile);
             }
@@ -258,7 +310,9 @@ namespace Warlock
                         if (ScriptedStockpile.ScriptedStashKeys.Any(x => x.StashKeyAlias == key.Alias))
                         {
                             //Set the ref
-                            ScriptedStockpile.GetStashKey(key.Alias).StashKeyRef = key;
+                            var sk = ScriptedStockpile.GetStashKey(key.Alias);
+                            sk.StashKeyRef = key;
+                            sk.StashKeyAlias = key.Alias;
                         }
                         else
                         {
@@ -268,11 +322,10 @@ namespace Warlock
                             sk.StashKeyRef = key;
                             sk.StashKeyAlias = key.Alias;
                         }
-                        //SavestateSystem.StashKeys[key.Alias] = key;
                     }
                     foreach (var sk in sks.StashKeys)
                     {
-                        StockpileManagerUISide.CheckAndFixMissingReference(sk, false);
+                        StockpileManagerUISide.CheckAndFixMissingReference(sk, false, sks.StashKeys);
                     }
                 }
 

@@ -1,5 +1,5 @@
 ﻿using Ceras;
-using Newtonsoft.Json;
+using System.Text.Json;
 using RTCV.CorruptCore;
 using RTCV.NetCore;
 using System;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Warlock.Structure
 {
@@ -24,14 +25,17 @@ namespace Warlock.Structure
         {
             StashKeyRef = null;
         }
-
+        
         public void Run()
         {
-            if (StashKeyRef?.Run() ?? false)
+            if(PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client)
             {
-                LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_SCRIPT, ScriptRTC ?? "", true);
-                LocalNetCoreRouter.Route(Routing.Endpoints.EMU_SIDE, Routing.Commands.LOAD_SCRIPT, ScriptEMU ?? "", true);
+                throw new Exception("Cannot call ScriptedStashKey.Run() from emulator side!");
             }
+            StashKeyRef.Run();
+            WarlockCore.Runner.LoadScript(ScriptRTC ?? "");
+            //LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_SCRIPT, ScriptRTC ?? "", true);
+            LocalNetCoreRouter.Route(Routing.Endpoints.EMU_SIDE, Routing.Commands.LOAD_SCRIPT, ScriptEMU ?? "", true);
         }
 
         public void Update()
