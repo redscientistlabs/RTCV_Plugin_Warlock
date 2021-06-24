@@ -18,7 +18,6 @@ using Warlock.Structure;
 
 namespace Warlock
 {
-    //Can be run on both sides
     internal static class WarlockCore
     {
         internal static HookedStateScriptRunner Runner { get; private set; } = null;
@@ -239,21 +238,22 @@ namespace Warlock
             }
         }
         
+        [LunarBindDocumentation("Loads a temporary savestate by id")]
         [LunarBindFunction("Warlock.LoadState")]
-        public static void LoadSavestateFromLua(object key, bool clearScript = false)
+        public static void LoadSavestateFromLua(string id, bool clearScript = false)
         {
             interrupt = true;
             clearScripts = clearScript;
-            SavestateToLoad = key?.ToString();
+            SavestateToLoad = id;
         }
 
-
+        [LunarBindDocumentation("Loads a StashKey from the stockpile by name, and starts its associated scripts.\r\nStops current stashkey script if clearScript is set to true, default is true")]
         [LunarBindFunction("Warlock.LoadStashkey")]
-        public static void LoadStashkeyFromLua(object key, bool clearScript = true)
+        public static void LoadStashkeyFromLua(string name, bool clearScript = true)
         {
             interrupt = true;
             clearScripts = clearScript;
-            StashkeyToLoad = key?.ToString(); 
+            StashkeyToLoad = name; 
         }
 
 

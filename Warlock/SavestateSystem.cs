@@ -15,13 +15,14 @@ namespace Warlock
 
         //public static Dictionary<string, StashKey> StashKeys = new Dictionary<string, StashKey>();
         public static Dictionary<string, StashKey> InternalSaveStates = new Dictionary<string, StashKey>();
-        
+
         //[LunarBindFunction("Warlock.LoadState")]
         //public static void LoadSaveState(string key, bool stopScripts = false)
         //{
         //    LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_INTERNAL_SAVESTATE, new object[] { key, stopScripts }, true);
         //}
 
+        [LunarBindDocumentation("Saves a temporary savestate by id")]
         [LunarBindFunction("Warlock.SaveState")]
         public static void SaveSaveState(string key)
         {

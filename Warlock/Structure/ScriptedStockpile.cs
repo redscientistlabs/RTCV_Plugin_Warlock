@@ -34,8 +34,6 @@ namespace Warlock.Structure
                 throw new Exception("Cannot start a scripted stockpile from the Emulator side");
             }
 
-            //WarlockCore.Reset();
-
             //Load global scripts on RTC
             foreach (var script in GlobalScriptsRTC)
             {
@@ -44,8 +42,6 @@ namespace Warlock.Structure
             //Load global scripts on EMU
             LocalNetCoreRouter.Route(Routing.Endpoints.EMU_SIDE, Routing.Commands.LOAD_GLOBAL_SCRIPTS, GlobalScriptsEMU, true);
 
-            //GetStashKey(InitialStashkey).Run();
-            //Load initial ScriptedStashKey'
             var sk = GetStashKey(InitialStashkey);
             if(sk == null)
             {
@@ -60,25 +56,5 @@ namespace Warlock.Structure
             }
         }
     }
-
-
-    //class ScriptedStockpileConverter : JsonConverter
-    //{
-    //    public override bool CanConvert(Type objectType)
-    //    {
-    //        return (objectType == typeof(ScriptedStockpile));
-    //    }
-
-    //    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-    //    {
-            
-    //        throw new NotImplementedException();
-    //    }
-
-    //    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-    //    {
-    //        throw new NotImplementedException();
-    //    }
-    //}
 
 }

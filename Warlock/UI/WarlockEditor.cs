@@ -197,6 +197,7 @@ namespace Warlock.UI
             {
                 tabControl.Invalidate();
             }
+            WarlockCore.Reset();
         }
 
         private void TbLuaEMU_TextChanged(object sender, EventArgs e)
@@ -210,6 +211,7 @@ namespace Warlock.UI
             {
                 tabControl.Invalidate();
             }
+            WarlockCore.Reset();
         }
 
 
@@ -249,6 +251,7 @@ namespace Warlock.UI
 
         private async void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            WarlockCore.Reset();
             using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "*.sks|*.sks" })
             {
                 if(ofd.ShowDialog() == DialogResult.OK)
@@ -266,7 +269,6 @@ namespace Warlock.UI
                 return;
             }
             
-
             try
             {
                 //S.GET<StashHistoryForm>().btnAddStashToStockpile.Enabled = false;
@@ -355,6 +357,7 @@ namespace Warlock.UI
         {
             try
             {
+                WarlockCore.Reset();
                 forceStockpileSave = forceStockpileSave || forceOverwriteStockpileToolStripMenuItem.Checked;
 
                 this.Enabled = false;
@@ -403,6 +406,7 @@ namespace Warlock.UI
 
         private void New()
         {
+            WarlockCore.Reset();
             WarlockCore.ScriptedStockpile = new ScriptedStockpile();
             currentStashKey = null;
             currentGlobalScriptItem = null;
@@ -436,6 +440,7 @@ namespace Warlock.UI
         {
             try
             {
+                WarlockCore.Reset();
                 using (OpenFileDialog ofd = new OpenFileDialog() { Multiselect = false, Filter = "*.wlk|*.wlk" })
                 {
                     if (ofd.ShowDialog() == DialogResult.OK)
@@ -611,6 +616,18 @@ namespace Warlock.UI
         {
             var tsm = sender as ToolStripMenuItem;
             tsm.Checked = !tsm.Checked;
+        }
+
+        private void documentationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(S.ISNULL<Lua.LuaDocumentationForm>() || S.GET<Lua.LuaDocumentationForm>().IsDisposed)
+            {
+                var form = new Lua.LuaDocumentationForm();
+                form.AddDocumentation("Default");
+                form.AddDocumentation("Warlock", WarlockCore.Bindings);
+                S.SET<Lua.LuaDocumentationForm>(form);
+                form.Show(this);
+            }
         }
     }
 

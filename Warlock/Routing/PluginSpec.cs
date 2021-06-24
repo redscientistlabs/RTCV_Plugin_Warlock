@@ -26,12 +26,14 @@ namespace Warlock
         /// </summary>
         /// <param name="key"></param>
         /// <param name="value"></param>
+        [LunarBindDocumentation("Sets a value without pushing, useful if you want to set multiple values at a time")]
         [LunarBindFunction]
         public static void SetWithoutPush(string key, object value)
         {
             spec[key] = value;
         }
 
+        [LunarBindDocumentation("Sets a value and pushes it to the other process")]
         [LunarBindFunction]
         public static void Set(string key, object value)
         {
@@ -39,6 +41,8 @@ namespace Warlock
             Push();
         }
 
+        [LunarBindDocumentation("Pushes the Spec to the other process")]
+        [LunarBindFunction]
         public static void Push()
         {
             if (PluginCore.CurrentSide == RTCSide.Client)
@@ -64,7 +68,7 @@ namespace Warlock
                 return default(T);
             }
         }
-
+        [LunarBindDocumentation("Gets a value from the Spec")]
         [LunarBindFunction]
         public static object Get(string name)
         {

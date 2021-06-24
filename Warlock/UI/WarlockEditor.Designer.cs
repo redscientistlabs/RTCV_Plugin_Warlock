@@ -60,6 +60,7 @@ namespace Warlock.UI
             this.bRun = new System.Windows.Forms.Button();
             this.lblEditing = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
+            this.documentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStockpile)).BeginInit();
             this.tabControl.SuspendLayout();
@@ -73,7 +74,8 @@ namespace Warlock.UI
             // 
             this.mainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
-            this.optionsToolStripMenuItem});
+            this.optionsToolStripMenuItem,
+            this.documentationToolStripMenuItem});
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
             this.mainMenuStrip.Size = new System.Drawing.Size(923, 24);
@@ -95,35 +97,35 @@ namespace Warlock.UI
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.newToolStripMenuItem.Text = "New";
             this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
             // 
             // importStockpileToolStripMenuItem
             // 
             this.importStockpileToolStripMenuItem.Name = "importStockpileToolStripMenuItem";
-            this.importStockpileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.importStockpileToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.importStockpileToolStripMenuItem.Text = "Import Stockpile";
             this.importStockpileToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // loadToolStripMenuItem
             // 
             this.loadToolStripMenuItem.Name = "loadToolStripMenuItem";
-            this.loadToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.loadToolStripMenuItem.Text = "Open";
             this.loadToolStripMenuItem.Click += new System.EventHandler(this.loadToolStripMenuItem_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveAsToolStripMenuItem.Text = "Save As..";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
@@ -138,7 +140,7 @@ namespace Warlock.UI
             // forceOverwriteStockpileToolStripMenuItem
             // 
             this.forceOverwriteStockpileToolStripMenuItem.Name = "forceOverwriteStockpileToolStripMenuItem";
-            this.forceOverwriteStockpileToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.forceOverwriteStockpileToolStripMenuItem.Size = new System.Drawing.Size(176, 22);
             this.forceOverwriteStockpileToolStripMenuItem.Text = "Overwrite Stockpile";
             this.forceOverwriteStockpileToolStripMenuItem.Click += new System.EventHandler(this.forceOverwriteStockpileToolStripMenuItem_Click);
             // 
@@ -217,6 +219,7 @@ namespace Warlock.UI
             // tbLuaEMU
             // 
             this.tbLuaEMU.AdditionalSelectionTyping = true;
+            this.tbLuaEMU.AutoCIgnoreCase = true;
             this.tbLuaEMU.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tbLuaEMU.CaretForeColor = System.Drawing.Color.White;
             this.tbLuaEMU.CaretLineBackColor = System.Drawing.Color.Blue;
@@ -253,6 +256,7 @@ namespace Warlock.UI
             // tbLuaRTC
             // 
             this.tbLuaRTC.AdditionalSelectionTyping = true;
+            this.tbLuaRTC.AutoCIgnoreCase = true;
             this.tbLuaRTC.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tbLuaRTC.CaretForeColor = System.Drawing.Color.White;
             this.tbLuaRTC.CaretLineBackColor = System.Drawing.Color.Blue;
@@ -393,6 +397,13 @@ namespace Warlock.UI
             this.lblStatus.TabIndex = 12;
             this.lblStatus.Text = "Stopped";
             // 
+            // documentationToolStripMenuItem
+            // 
+            this.documentationToolStripMenuItem.Name = "documentationToolStripMenuItem";
+            this.documentationToolStripMenuItem.Size = new System.Drawing.Size(102, 20);
+            this.documentationToolStripMenuItem.Text = "Documentation";
+            this.documentationToolStripMenuItem.Click += new System.EventHandler(this.documentationToolStripMenuItem_Click);
+            // 
             // WarlockEditor
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
@@ -460,5 +471,6 @@ namespace Warlock.UI
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem forceOverwriteStockpileToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem documentationToolStripMenuItem;
     }
 }
