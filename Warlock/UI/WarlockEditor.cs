@@ -47,6 +47,8 @@ namespace Warlock.UI
             tbLuaEMU.TextChanged += TbLuaEMU_TextChanged;
             var paths = GlobalScriptBindings.GetAllRegisteredPaths();
             paths.AddRange(WarlockCore.Bindings.GetAllRegisteredPaths());
+            paths.AddRange(Lua.LuaManager.EmulatorOnlyBindings.GetAllRegisteredPaths());
+            paths.AddRange(Lua.LuaManager.UIOnlyBindings.GetAllRegisteredPaths());
             //paths.Distinct()
             string externalAutoCompleteStr = string.Join(" ", paths);
 
@@ -625,6 +627,9 @@ namespace Warlock.UI
                 var form = new Lua.LuaDocumentationForm();
                 form.AddDocumentation("Default");
                 form.AddDocumentation("Warlock", WarlockCore.Bindings);
+                form.AddDocumentation("Emulator Only", Lua.LuaManager.EmulatorOnlyBindings);
+                form.AddDocumentation("UI Only", Lua.LuaManager.UIOnlyBindings);
+                //paths.AddRange(.GetAllRegisteredPaths());
                 S.SET<Lua.LuaDocumentationForm>(form);
                 form.Show(this);
             }

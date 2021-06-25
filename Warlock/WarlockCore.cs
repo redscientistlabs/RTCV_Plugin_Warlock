@@ -41,6 +41,7 @@ namespace Warlock
         internal static void Initialize()
         {
             Bindings = new ScriptBindings();
+
             Bindings.BindAssemblyFuncs(Assembly.GetExecutingAssembly());
             //bindings.BindTypeFuncs(typeof(WarlockCore));
             //bindings.BindTypeFuncs(typeof(WarlockCore));
@@ -55,6 +56,7 @@ namespace Warlock
                     new LuaFuncStandard("BeforeLoadState", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false),
                     new LuaFuncStandard("AfterLoadState", LuaFuncType.AutoCoroutine | LuaFuncType.AllowAny, false)
                     );
+                
             }
             else
             {
@@ -66,6 +68,7 @@ namespace Warlock
             }
             
             Runner = new HookedStateScriptRunner(Standard, Bindings);
+            if (PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client) { Lua.LuaManager.EmulatorOnlyBindings.InitializeRunner(Runner); }
         }
 
         public static void Run()
@@ -98,6 +101,7 @@ namespace Warlock
             ResetInterrupts();
             StopScripts();
             Runner = new HookedStateScriptRunner(Standard, Bindings);
+            if(PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client) { Lua.LuaManager.EmulatorOnlyBindings.InitializeRunner(Runner); }
             SavestateSystem.Reset();
         }
 
