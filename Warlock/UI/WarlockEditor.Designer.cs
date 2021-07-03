@@ -39,6 +39,9 @@ namespace Warlock.UI
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.forceOverwriteStockpileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.documentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optimizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.optimizeAutoCoroutineHooksToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.dgvStockpile = new System.Windows.Forms.DataGridView();
             this.SKName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Game = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -50,6 +53,7 @@ namespace Warlock.UI
             this.tabPageRTC = new System.Windows.Forms.TabPage();
             this.tbLuaRTC = new Lua.UI.ScriptSyntaxTextbox();
             this.panelGlobals = new System.Windows.Forms.Panel();
+            this.dgvBlastLayers = new System.Windows.Forms.DataGridView();
             this.dgvGlobalScripts = new System.Windows.Forms.DataGridView();
             this.GlobalScriptName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.DeleteGlobal = new System.Windows.Forms.DataGridViewButtonColumn();
@@ -60,13 +64,17 @@ namespace Warlock.UI
             this.bRun = new System.Windows.Forms.Button();
             this.lblEditing = new System.Windows.Forms.Label();
             this.lblStatus = new System.Windows.Forms.Label();
-            this.documentationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lblBlastLayers = new System.Windows.Forms.Label();
+            this.bImportBlastLayer = new System.Windows.Forms.Button();
+            this.BlastLayerName = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.DeleteBlastLayer = new System.Windows.Forms.DataGridViewButtonColumn();
             this.mainMenuStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStockpile)).BeginInit();
             this.tabControl.SuspendLayout();
             this.tabPageEMU.SuspendLayout();
             this.tabPageRTC.SuspendLayout();
             this.panelGlobals.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvBlastLayers)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGlobalScripts)).BeginInit();
             this.SuspendLayout();
             // 
@@ -75,7 +83,8 @@ namespace Warlock.UI
             this.mainMenuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.optionsToolStripMenuItem,
-            this.documentationToolStripMenuItem});
+            this.documentationToolStripMenuItem,
+            this.optimizeToolStripMenuItem});
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
             this.mainMenuStrip.Size = new System.Drawing.Size(923, 24);
@@ -144,6 +153,29 @@ namespace Warlock.UI
             this.forceOverwriteStockpileToolStripMenuItem.Text = "Overwrite Stockpile";
             this.forceOverwriteStockpileToolStripMenuItem.Click += new System.EventHandler(this.forceOverwriteStockpileToolStripMenuItem_Click);
             // 
+            // documentationToolStripMenuItem
+            // 
+            this.documentationToolStripMenuItem.Name = "documentationToolStripMenuItem";
+            this.documentationToolStripMenuItem.Size = new System.Drawing.Size(102, 20);
+            this.documentationToolStripMenuItem.Text = "Documentation";
+            this.documentationToolStripMenuItem.Click += new System.EventHandler(this.documentationToolStripMenuItem_Click);
+            // 
+            // optimizeToolStripMenuItem
+            // 
+            this.optimizeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.optimizeAutoCoroutineHooksToolStripMenuItem});
+            this.optimizeToolStripMenuItem.Name = "optimizeToolStripMenuItem";
+            this.optimizeToolStripMenuItem.Size = new System.Drawing.Size(67, 20);
+            this.optimizeToolStripMenuItem.Text = "Optimize";
+            // 
+            // optimizeAutoCoroutineHooksToolStripMenuItem
+            // 
+            this.optimizeAutoCoroutineHooksToolStripMenuItem.Enabled = false;
+            this.optimizeAutoCoroutineHooksToolStripMenuItem.Name = "optimizeAutoCoroutineHooksToolStripMenuItem";
+            this.optimizeAutoCoroutineHooksToolStripMenuItem.Size = new System.Drawing.Size(244, 22);
+            this.optimizeAutoCoroutineHooksToolStripMenuItem.Text = "Optimize Auto Coroutine Hooks";
+            this.optimizeAutoCoroutineHooksToolStripMenuItem.Click += new System.EventHandler(this.optimizeAutoCoroutineHooksToolStripMenuItem_Click);
+            // 
             // dgvStockpile
             // 
             this.dgvStockpile.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
@@ -158,7 +190,7 @@ namespace Warlock.UI
             this.dgvStockpile.Name = "dgvStockpile";
             this.dgvStockpile.ReadOnly = true;
             this.dgvStockpile.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.dgvStockpile.Size = new System.Drawing.Size(384, 274);
+            this.dgvStockpile.Size = new System.Drawing.Size(384, 246);
             this.dgvStockpile.TabIndex = 2;
             this.dgvStockpile.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.HandleCellClick);
             // 
@@ -284,11 +316,28 @@ namespace Warlock.UI
             | System.Windows.Forms.AnchorStyles.Left)));
             this.panelGlobals.AutoScroll = true;
             this.panelGlobals.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
+            this.panelGlobals.Controls.Add(this.dgvBlastLayers);
             this.panelGlobals.Controls.Add(this.dgvGlobalScripts);
-            this.panelGlobals.Location = new System.Drawing.Point(12, 366);
+            this.panelGlobals.Location = new System.Drawing.Point(12, 340);
             this.panelGlobals.Name = "panelGlobals";
-            this.panelGlobals.Size = new System.Drawing.Size(384, 117);
+            this.panelGlobals.Size = new System.Drawing.Size(384, 143);
             this.panelGlobals.TabIndex = 5;
+            // 
+            // dgvBlastLayers
+            // 
+            this.dgvBlastLayers.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.dgvBlastLayers.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dgvBlastLayers.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvBlastLayers.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.BlastLayerName,
+            this.DeleteBlastLayer});
+            this.dgvBlastLayers.Location = new System.Drawing.Point(190, 0);
+            this.dgvBlastLayers.Name = "dgvBlastLayers";
+            this.dgvBlastLayers.ReadOnly = true;
+            this.dgvBlastLayers.Size = new System.Drawing.Size(191, 143);
+            this.dgvBlastLayers.TabIndex = 1;
+            this.dgvBlastLayers.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvBlastLayers_CellClick);
             // 
             // dgvGlobalScripts
             // 
@@ -302,7 +351,7 @@ namespace Warlock.UI
             this.dgvGlobalScripts.Location = new System.Drawing.Point(0, 0);
             this.dgvGlobalScripts.Name = "dgvGlobalScripts";
             this.dgvGlobalScripts.ReadOnly = true;
-            this.dgvGlobalScripts.Size = new System.Drawing.Size(384, 117);
+            this.dgvGlobalScripts.Size = new System.Drawing.Size(191, 143);
             this.dgvGlobalScripts.TabIndex = 0;
             this.dgvGlobalScripts.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvGlobalScripts_CellClick);
             // 
@@ -314,7 +363,7 @@ namespace Warlock.UI
             // 
             // DeleteGlobal
             // 
-            this.DeleteGlobal.FillWeight = 10F;
+            this.DeleteGlobal.FillWeight = 30F;
             this.DeleteGlobal.HeaderText = "";
             this.DeleteGlobal.Name = "DeleteGlobal";
             this.DeleteGlobal.ReadOnly = true;
@@ -322,11 +371,11 @@ namespace Warlock.UI
             // bAddGlobalScript
             // 
             this.bAddGlobalScript.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.bAddGlobalScript.Location = new System.Drawing.Point(321, 340);
+            this.bAddGlobalScript.Location = new System.Drawing.Point(128, 311);
             this.bAddGlobalScript.Name = "bAddGlobalScript";
             this.bAddGlobalScript.Size = new System.Drawing.Size(75, 23);
             this.bAddGlobalScript.TabIndex = 6;
-            this.bAddGlobalScript.Text = "Add";
+            this.bAddGlobalScript.Text = "Add..";
             this.bAddGlobalScript.UseVisualStyleBackColor = true;
             this.bAddGlobalScript.Click += new System.EventHandler(this.bAddGlobalScript_Click);
             // 
@@ -335,7 +384,7 @@ namespace Warlock.UI
             this.lblGlobalScripts.AutoSize = true;
             this.lblGlobalScripts.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblGlobalScripts.ForeColor = System.Drawing.Color.White;
-            this.lblGlobalScripts.Location = new System.Drawing.Point(12, 345);
+            this.lblGlobalScripts.Location = new System.Drawing.Point(12, 316);
             this.lblGlobalScripts.Name = "lblGlobalScripts";
             this.lblGlobalScripts.Size = new System.Drawing.Size(78, 13);
             this.lblGlobalScripts.TabIndex = 7;
@@ -397,18 +446,48 @@ namespace Warlock.UI
             this.lblStatus.TabIndex = 12;
             this.lblStatus.Text = "Stopped";
             // 
-            // documentationToolStripMenuItem
+            // lblBlastLayers
             // 
-            this.documentationToolStripMenuItem.Name = "documentationToolStripMenuItem";
-            this.documentationToolStripMenuItem.Size = new System.Drawing.Size(102, 20);
-            this.documentationToolStripMenuItem.Text = "Documentation";
-            this.documentationToolStripMenuItem.Click += new System.EventHandler(this.documentationToolStripMenuItem_Click);
+            this.lblBlastLayers.AutoSize = true;
+            this.lblBlastLayers.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblBlastLayers.ForeColor = System.Drawing.Color.White;
+            this.lblBlastLayers.Location = new System.Drawing.Point(209, 321);
+            this.lblBlastLayers.Name = "lblBlastLayers";
+            this.lblBlastLayers.Size = new System.Drawing.Size(65, 13);
+            this.lblBlastLayers.TabIndex = 13;
+            this.lblBlastLayers.Text = "Blast Layers";
+            // 
+            // bImportBlastLayer
+            // 
+            this.bImportBlastLayer.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.bImportBlastLayer.Location = new System.Drawing.Point(321, 311);
+            this.bImportBlastLayer.Name = "bImportBlastLayer";
+            this.bImportBlastLayer.Size = new System.Drawing.Size(75, 23);
+            this.bImportBlastLayer.TabIndex = 14;
+            this.bImportBlastLayer.Text = "Import..";
+            this.bImportBlastLayer.UseVisualStyleBackColor = true;
+            this.bImportBlastLayer.Click += new System.EventHandler(this.bImportBlastLayer_Click);
+            // 
+            // BlastLayerName
+            // 
+            this.BlastLayerName.HeaderText = "Name";
+            this.BlastLayerName.Name = "BlastLayerName";
+            this.BlastLayerName.ReadOnly = true;
+            // 
+            // DeleteBlastLayer
+            // 
+            this.DeleteBlastLayer.FillWeight = 30F;
+            this.DeleteBlastLayer.HeaderText = "";
+            this.DeleteBlastLayer.Name = "DeleteBlastLayer";
+            this.DeleteBlastLayer.ReadOnly = true;
             // 
             // WarlockEditor
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(96)))), ((int)(((byte)(96)))), ((int)(((byte)(96)))));
             this.ClientSize = new System.Drawing.Size(923, 495);
+            this.Controls.Add(this.bImportBlastLayer);
+            this.Controls.Add(this.lblBlastLayers);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.lblEditing);
             this.Controls.Add(this.bRun);
@@ -434,6 +513,7 @@ namespace Warlock.UI
             this.tabPageEMU.ResumeLayout(false);
             this.tabPageRTC.ResumeLayout(false);
             this.panelGlobals.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvBlastLayers)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGlobalScripts)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -457,8 +537,6 @@ namespace Warlock.UI
         private System.Windows.Forms.ToolStripMenuItem saveAsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.DataGridView dgvGlobalScripts;
-        private System.Windows.Forms.DataGridViewTextBoxColumn GlobalScriptName;
-        private System.Windows.Forms.DataGridViewButtonColumn DeleteGlobal;
         private System.Windows.Forms.Label lblGlobalScripts;
         private System.Windows.Forms.Label lblStockpile;
         private System.Windows.Forms.Button bStop;
@@ -472,5 +550,14 @@ namespace Warlock.UI
         private System.Windows.Forms.ToolStripMenuItem optionsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem forceOverwriteStockpileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem documentationToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem optimizeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem optimizeAutoCoroutineHooksToolStripMenuItem;
+        private System.Windows.Forms.DataGridView dgvBlastLayers;
+        private System.Windows.Forms.DataGridViewTextBoxColumn GlobalScriptName;
+        private System.Windows.Forms.DataGridViewButtonColumn DeleteGlobal;
+        private System.Windows.Forms.Label lblBlastLayers;
+        private System.Windows.Forms.Button bImportBlastLayer;
+        private System.Windows.Forms.DataGridViewTextBoxColumn BlastLayerName;
+        private System.Windows.Forms.DataGridViewButtonColumn DeleteBlastLayer;
     }
 }

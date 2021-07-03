@@ -112,7 +112,7 @@ namespace Warlock.UI
             this.bMyEarsHurt.Name = "bMyEarsHurt";
             this.bMyEarsHurt.Size = new System.Drawing.Size(85, 70);
             this.bMyEarsHurt.TabIndex = 130;
-            this.bMyEarsHurt.Text = "My Ears Hurt";
+            this.bMyEarsHurt.Text = "Emergency Stop";
             this.bMyEarsHurt.UseVisualStyleBackColor = false;
             this.bMyEarsHurt.Click += new System.EventHandler(this.bMyEarsHurt_Click);
             // 

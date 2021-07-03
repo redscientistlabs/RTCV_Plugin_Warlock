@@ -32,9 +32,10 @@ namespace Warlock.Structure
             {
                 throw new Exception("Cannot call ScriptedStashKey.Run() from emulator side!");
             }
-            StashKeyRef.Run();
+
+            StockpileManagerUISide.ApplyStashkey(StashKeyRef, true, true);
+            //StashKeyRef.Run();
             WarlockCore.Runner.LoadScript(ScriptRTC ?? "");
-            //LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.LOAD_SCRIPT, ScriptRTC ?? "", true);
             LocalNetCoreRouter.Route(Routing.Endpoints.EMU_SIDE, Routing.Commands.LOAD_SCRIPT, ScriptEMU ?? "", true);
         }
 

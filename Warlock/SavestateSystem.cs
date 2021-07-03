@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using LunarBind;
 using RTCV.NetCore;
 using RTCV.Common;
+using System.IO;
 
 namespace Warlock
 {
@@ -29,6 +30,16 @@ namespace Warlock
             LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.SAVE_INTERNAL_SAVESTATE, key, true);
         }
 
+        public static void SetSaveState(string key, StashKey sk)
+        {
+            if (PluginCore.CurrentSide != RTCV.PluginHost.RTCSide.Server)
+            {
+                throw new Exception("Cannot call SetSaveState from Emulator side");
+            }
+            InternalSaveStates[key] = sk;
+            //LocalNetCoreRouter.Route(Routing.Endpoints.RTC_SIDE, Routing.Commands.SAVE_INTERNAL_SAVESTATE, key, true);
+        }
+
         /// <summary>
         /// DO NOT CALL, use <see cref="LoadSaveState(string)" instead/>
         /// </summary>
@@ -43,7 +54,7 @@ namespace Warlock
             {               
                 if (InternalSaveStates.TryGetValue(key, out StashKey val))
                 {
-                    val.Run();
+                    StockpileManagerUISide.ApplyStashkey(val, true, true);
                 }
             }
         }
@@ -56,10 +67,15 @@ namespace Warlock
         {
             if (PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Client)
             {
-                throw new Exception("Cannot call LoadInternal from Emulator side!");
+                throw new Exception("Cannot call SaveInternalSaveState from Emulator side!");
             }
             else
             {
+                if (InternalSaveStates.TryGetValue(key, out StashKey value))
+                {
+                    TryDeleteTemporarySavestate(value);
+                }
+                //Set
                 InternalSaveStates[key] = SaveState();
             }
         }
@@ -81,7 +97,26 @@ namespace Warlock
         //[LunarBindFunction("Reset")]
         public static void Reset()
         {
-            InternalSaveStates.Clear();
+            if (PluginCore.CurrentSide == RTCV.PluginHost.RTCSide.Server)
+            {
+                //InternalSaveStates.Where(x => !WarlockCore.OriginalStashKeys.Contains(x.Value));
+                foreach (var item in InternalSaveStates)
+                {
+                    TryDeleteTemporarySavestate(item.Value);
+                }
+                InternalSaveStates.Clear();
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+            }
         }
+
+        public static void TryDeleteTemporarySavestate(StashKey savestate)
+        {
+            if (!WarlockCore.OriginalStashKeys.Any(x => object.ReferenceEquals(x, savestate)))
+            {
+                File.Delete(savestate.StateFilename);
+            }
+        }
+
     }
 }

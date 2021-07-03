@@ -37,6 +37,12 @@ namespace Warlock
                         }
                     }
                     break;
+                case Routing.Commands.EXECUTE_HOOK_NO_INTERRUPT:
+                    WarlockCore.ExecuteNoInterrupt(message.objectValue as string);
+                    break;
+                case Routing.Commands.EXECUTE_HOOK:
+                    WarlockCore.Execute(message.objectValue as string);
+                    break;
                 case Routing.Commands.LOAD_SCRIPT:
                     WarlockCore.Runner.LoadScript(message.objectValue.ToString());
                     break;

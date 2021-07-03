@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
 using System.Windows.Forms;
+using RTCV.CorruptCore;
 
 namespace Warlock.Structure
 {
@@ -16,6 +17,10 @@ namespace Warlock.Structure
     {
         public Dictionary<string,string> GlobalScriptsEMU = new Dictionary<string, string>();
         public Dictionary<string,string> GlobalScriptsRTC = new Dictionary<string, string>();
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public Dictionary<string, BlastLayer> BlastLayers = new Dictionary<string, BlastLayer>();
+
         public List<ScriptedStashKey> ScriptedStashKeys = new List<ScriptedStashKey>();
         //public string StockpilePath = "";
         public string InitialStashkey = "";

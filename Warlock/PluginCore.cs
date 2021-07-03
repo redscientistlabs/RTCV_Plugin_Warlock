@@ -4,6 +4,7 @@ using RTCV.PluginHost;
 using RTCV.UI;
 using System;
 using System.ComponentModel.Composition;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Warlock.UI;
 
@@ -67,6 +68,19 @@ namespace Warlock
             CurrentSide = side;
 
             WarlockCore.Initialize();
+            
+            //Reset if emulator, just to make sure it isn't running
+            if(CurrentSide == RTCSide.Client)
+            {
+                Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    SyncObjectSingleton.FormExecute(() =>
+                    {
+                        WarlockCore.Reset();
+                    });
+                });
+            }
             return true;
         }
 

@@ -1,6 +1,7 @@
 using RTCV.Common;
 using RTCV.CorruptCore;
 using RTCV.NetCore;
+using RTCV.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +45,19 @@ namespace Warlock
                     break;
                 case Routing.Commands.LOAD_SCRIPT:
                     WarlockCore.Runner.LoadScript(message.objectValue.ToString());
-                    //WarlockCore.Runner.LoadScript((string)message.objectValue);
+                    break;
+                case Routing.Commands.LOAD_NAMED_SCRIPT:
+                    var namedScriptSK = WarlockCore.ScriptedStockpile.GetStashKey(message.objectValue as string);
+                    if(namedScriptSK == null)
+                    {
+                        WarlockCore.Reset();
+                        throw new Exception($"Script named {message.objectValue?.ToString() ?? "null" } could not be found");
+                    }
+                    else
+                    {
+                        WarlockCore.Runner.LoadScript(namedScriptSK.ScriptRTC);
+                        LocalNetCoreRouter.Route(Routing.Endpoints.EMU_SIDE, Routing.Commands.LOAD_SCRIPT, namedScriptSK.ScriptEMU, true);
+                    }
                     break;
                 case Routing.Commands.LOAD_STASHKEY_SAVESTATE:
                     LoadAndRunStashKeySavestate((string)message.objectValue);
@@ -58,6 +71,13 @@ namespace Warlock
                 case Routing.Commands.RESET:
                     WarlockCore.ResetThisSide();
                     break;
+                case Routing.Commands.APPLY_BLAST_LAYER:
+                    BlastLayerSystem.ApplyBlastLayerInternal(message.objectValue as string);
+                    break;
+                case Routing.Commands.UNDO_BLAST_LAYER:
+                    BlastLayerSystem.UndoBlastLayerInternal(message.objectValue as string);
+                    break;
+
                 default:
                     break;
             }
@@ -73,7 +93,9 @@ namespace Warlock
             }
             else
             {
-                sk.Run();
+                var applied = StockpileManagerUISide.ApplyStashkey(sk.StashKeyRef, true);
+                //S.GET<GlitchHarvesterBlastForm>().IsCorruptionApplied = applied;
+                //sk.Run();
             }
         }
 
@@ -86,7 +108,11 @@ namespace Warlock
             }
             else
             {
-                sk.StashKeyRef.Run();
+                var newSk = (StashKey)sk.StashKeyRef.Clone();
+                newSk.BlastLayer = new BlastLayer() { Layer = new List<BlastUnit>() };
+                var applied = StockpileManagerUISide.ApplyStashkey(sk.StashKeyRef, true, true);
+                //S.GET<GlitchHarvesterBlastForm>().IsCorruptionApplied = applied;
+                //sk.StashKeyRef.Run();
             }
         }
 

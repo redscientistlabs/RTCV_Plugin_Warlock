@@ -17,6 +17,7 @@ using System.Text.Json.Serialization;
 using System.IO;
 using System.Text.Json;
 using System.Drawing;
+using System.Text.RegularExpressions;
 
 namespace Warlock.UI
 {
@@ -199,7 +200,7 @@ namespace Warlock.UI
             {
                 tabControl.Invalidate();
             }
-            WarlockCore.Reset();
+            //WarlockCore.Reset();
         }
 
         private void TbLuaEMU_TextChanged(object sender, EventArgs e)
@@ -213,7 +214,7 @@ namespace Warlock.UI
             {
                 tabControl.Invalidate();
             }
-            WarlockCore.Reset();
+            //WarlockCore.Reset();
         }
 
 
@@ -417,6 +418,7 @@ namespace Warlock.UI
             tbLuaRTC.Enabled = false;
             dgvStockpile.Rows.Clear();
             dgvGlobalScripts.Rows.Clear();
+            dgvBlastLayers.Rows.Clear();
             CurrentFile = null;
             tbLuaRTC.Text = "";
             tbLuaEMU.Text = "";
@@ -450,22 +452,29 @@ namespace Warlock.UI
                         try
                         {
                             this.Enabled = false;
-                            WarlockCore.ScriptedStockpile = new ScriptedStockpile();
-                            currentStashKey = null;
-                            currentGlobalScriptItem = null;
-                            lblEditing.Text = "Currently Editing: N/A";
-                            tbLuaEMU.Enabled = false;
-                            tbLuaRTC.Enabled = false;
-                            tbLuaRTC.Text = "";
-                            tbLuaEMU.Text = "";
-                            dgvStockpile.Rows.Clear();
-                            dgvGlobalScripts.Rows.Clear();
-                            CurrentFile = null;
+                            //WarlockCore.ScriptedStockpile = new ScriptedStockpile();
+                            //currentStashKey = null;
+                            //currentGlobalScriptItem = null;
+                            //lblEditing.Text = "Currently Editing: N/A";
+                            //tbLuaEMU.Enabled = false;
+                            //tbLuaRTC.Enabled = false;
+                            //tbLuaRTC.Text = "";
+                            //tbLuaEMU.Text = "";
+                            //dgvStockpile.Rows.Clear();
+                            //dgvGlobalScripts.Rows.Clear();
+                            //CurrentFile = null;
+
+                            New();
                             await WarlockCore.LoadScriptedStockpile(ofd.FileName);
+
                             foreach (var key in WarlockCore.ScriptedStockpile.ScriptedStashKeys)
                             {
-                                dgvStockpile?.Rows.Add(key, key.StashKeyRef.GameName, key.StashKeyRef.Note, WarlockCore.ScriptedStockpile.InitialStashkey == key.StashKeyAlias);
+                                if (key.StashKeyRef != null)
+                                {
+                                    dgvStockpile?.Rows.Add(key, key.StashKeyRef.GameName, key.StashKeyRef.Note, WarlockCore.ScriptedStockpile.InitialStashkey == key.StashKeyAlias);
+                                }
                             }
+
                             HashSet<string> globals = new HashSet<string>();
                             foreach (var item in WarlockCore.ScriptedStockpile.GlobalScriptsRTC)
                             {
@@ -480,8 +489,17 @@ namespace Warlock.UI
                             {
                                 dgvGlobalScripts.Rows.Add(item, "🗑");
                             }
+
+                            foreach (var item in WarlockCore.ScriptedStockpile.BlastLayers)
+                            {
+                                dgvBlastLayers.Rows.Add(item.Key, "🗑");
+                            }
+
                             CurrentFile = ofd.FileName;
                             RefreshNoteIcons();
+                            dgvStockpile.ClearSelection();
+                            dgvGlobalScripts.ClearSelection();
+                            dgvBlastLayers.ClearSelection();
                         }
                         catch
                         {
@@ -519,6 +537,66 @@ namespace Warlock.UI
             }
         }
 
+        private void bImportBlastLayer_Click(object sender, EventArgs e)
+        {
+            using(OpenFileDialog ofd = new OpenFileDialog() { Filter = "bl files|*.bl", Multiselect = true })
+            {
+                if(ofd.ShowDialog() == DialogResult.OK)
+                {
+                    foreach (var fileName in ofd.FileNames)
+                    {
+                        string id = Path.GetFileNameWithoutExtension(fileName);
+                        var bl = BlastTools.LoadBlastLayerFromFile(ofd.FileName);
+                        if (!WarlockCore.ScriptedStockpile.BlastLayers.Keys.Contains(id))
+                        {
+                            dgvBlastLayers.Rows.Add(id, "🗑");
+                        }
+                        WarlockCore.ScriptedStockpile.BlastLayers[id] = bl;
+                    }
+                }
+            }
+        }
+
+
+        private void dgvBlastLayers_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e == null || e.RowIndex == -1)
+            {
+                return;
+            }
+
+            //S.GET<StashHistoryForm>().btnAddStashToStockpile.Enabled = false;
+            dgvBlastLayers.Enabled = false;
+            try
+            {
+                //// Global Script BUTTON handling
+                if (e != null)
+                {
+                    var senderGrid = (DataGridView)sender;
+                    if (e.RowIndex >= 0 && e.ColumnIndex > -1)
+                    {
+                        if (senderGrid.Columns[e.ColumnIndex].Name == "DeleteBlastLayer")
+                        {
+                            string bln = (string)senderGrid.Rows[e.RowIndex].Cells["BlastLayerName"].Value;
+                            if (!string.IsNullOrWhiteSpace(bln))
+                            {
+                                WarlockCore.ScriptedStockpile.BlastLayers.Remove(bln);
+                                senderGrid.Rows.RemoveAt(e.RowIndex);
+                            }
+
+                            return;
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                dgvBlastLayers.Enabled = true;
+                dgvBlastLayers.ClearSelection();
+            }
+
+        }
+
         private void dgvGlobalScripts_CellClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e == null || e.RowIndex == -1)
@@ -532,7 +610,7 @@ namespace Warlock.UI
                 //S.GET<StashHistoryForm>().btnAddStashToStockpile.Enabled = false;
                 dgvGlobalScripts.Enabled = false;
 
-                //// Stockpile BUTTON handling
+                //// Global Script BUTTON handling
                 if (e != null)
                 {
                     var senderGrid = (DataGridView)sender;
@@ -634,6 +712,269 @@ namespace Warlock.UI
                 form.Show(this);
             }
         }
+
+        Regex funcRegex = new Regex(@"function\s+StepEnd\(\)|function\s+StepStart\(\)|function\s+StepPreCorrupt\(\)|function\s+StepPostCorrupt\(\)|function\s+BeforeLoadState\(\)|function\s+AfterLoadState\(\)");
+        private void optimizeAutoCoroutineHooksToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Disable all
+            WarlockCore.Reset();
+            currentStashKey = null;
+            currentGlobalScriptItem = null;
+            dgvGlobalScripts.ClearSelection();
+            dgvStockpile.ClearSelection();
+            lblEditing.Text = "Currently Editing: N/A";
+            tbLuaEMU.Enabled = false;
+            tbLuaRTC.Enabled = false;
+            tbLuaRTC.Text = "";
+            tbLuaEMU.Text = "";
+
+            int FindEnd(string str, int startInd)
+            {
+                str = str.ToLower();
+                //const int searchLen = 3;
+                int curInd = startInd;
+                int scopeCount = 1;
+                while (true) {
+                    //if(str.Length <= curInd + searchLen) { return -1; }
+                    //var ss = str.Substring(curInd, searchLen).ToLower();
+
+                    bool SSEqu(string cmp) {
+                        if(str.Length <= curInd + cmp.Length)
+                        {
+                            return false;
+                            //throw new Exception();
+                        }
+
+                        for (int i = 0; i < cmp.Length; i++)
+                        {
+                            if(cmp[i] == ' ')
+                            {
+                                if (!char.IsWhiteSpace(str[curInd + i]) && str[curInd + i] != '\r' && str[curInd + i] != '\n') return false;
+                            }
+                            else
+                            {
+                                if (str[curInd + i] != cmp[i]) return false;
+                            }
+                        }
+                        return true;
+                    }
+
+                    try
+                    {
+                        if (SSEqu(" end"))
+                        {
+                            if (curInd + 4 >= str.Length)
+                            {
+                                scopeCount--;
+                                if (scopeCount == 0)
+                                {
+                                    return curInd;
+                                }
+                                else
+                                {
+                                    throw new Exception();
+                                    //curInd += 4;
+                                    curInd++;
+                                }
+                            }
+                            else if (char.IsWhiteSpace(str[curInd + 4]) || str[curInd + 4] == '\r')
+                            {
+                                scopeCount--;
+                                if (scopeCount == 0)
+                                {
+                                    return curInd;
+                                }
+                                else
+                                {
+                                    curInd ++;
+                                }
+                            }
+                        }
+                        else if (SSEqu(" then "))
+                        {
+                            scopeCount++;
+                            curInd++;
+                        }
+                        else if (SSEqu(" do "))
+                        {
+                            scopeCount++;
+                            curInd++;
+                        }
+                        else if (SSEqu(" function ") || SSEqu(" function("))
+                        {
+                            scopeCount++;
+                            curInd++;
+                        }
+                        else
+                        {
+                            curInd++;
+                        }
+                    }
+                    catch
+                    {
+                        return -1;
+                    }
+
+                    if(curInd >= str.Length)
+                    {
+                        return -1;
+                    }
+                }
+            }
+
+            string NextNewLineSpaces(string strIn, int strt)
+            {
+                int nlCt = 0;
+                int curInd = strt;
+                bool nlFound = false;
+                while (true)
+                {
+                    if(strIn.Length <= curInd)
+                    {
+                        return "";
+                    }
+
+                    if (nlFound)
+                    {
+                        if (char.IsWhiteSpace(strIn, curInd))
+                        {
+                            if (strIn[curInd] == '\t') { nlCt += 2; }
+                            else { nlCt++; }
+                        }
+                        else
+                        {
+                            return new string(' ', nlCt);
+                        }
+                    }
+                    else
+                    {
+                        if (!char.IsWhiteSpace(strIn, curInd))
+                        {
+                            if (strIn[curInd] == '\r' && strIn[curInd] == '\n')
+                            {
+                                curInd += 2;
+                                nlFound = true;
+                                continue;
+                            }
+                            else
+                            {
+                                return "";
+                            }
+                        }
+                    }
+
+                    curInd++;
+                }
+            }
+
+            string LastNewLineSpaces(string strIn, int strt)
+            {
+                int nlCt = 0;
+                int curInd = strt;
+                bool nlFound = false;
+                while (true)
+                {
+                    if (strIn.Length <= curInd)
+                    {
+                        return "";
+                    }
+
+                    if (nlFound)
+                    {
+                        if (char.IsWhiteSpace(strIn, curInd))
+                        {
+                            if (strIn[curInd] == '\t') { nlCt += 2; }
+                            else { nlCt++; }
+                        }
+                        else
+                        {
+                            return new string(' ', nlCt);
+                        }
+                    }
+                    else
+                    {
+                        if (!char.IsWhiteSpace(strIn, curInd))
+                        {
+                            if (strIn[curInd] == '\r' && strIn[curInd] == '\n')
+                            {
+                                curInd += 2;
+                                nlFound = true;
+                                continue;
+                            }
+                            else
+                            {
+                                return "";
+                            }
+                        }
+                    }
+
+                    curInd += nlFound ? 1 : -1;
+                }
+            }
+
+
+            string Optimize(string input)
+            {
+                try
+                {
+                    string output = input;
+                    var matches = funcRegex.Matches(output);
+                    int matchCount = matches.Count;
+                    for (int j = 0; j < matchCount; j++)
+                    {
+                        var start = matches[j].Index + matches[j].Length;
+
+                        var end = FindEnd(output, start);
+
+                        if (end != -1)
+                        {
+                            var nlSpacesStart = NextNewLineSpaces(output, start);
+                            var nlSpacesEnd = LastNewLineSpaces(output, start);
+
+                            output = output.Insert(end, $"\r\n{nlSpacesEnd}coroutine.yield()\r\n{nlSpacesEnd}end");
+                            output = output.Insert(start, $"\r\n{nlSpacesStart}while true do");
+                        }
+
+                        //Refind
+                        if (j != matchCount - 1)
+                        {
+                            matches = funcRegex.Matches(output);
+                        }
+                    }
+
+                    return output;
+                }
+                catch
+                {
+                    return input;
+                }
+
+
+            }
+
+
+            //search
+            //string a = WarlockCore.ScriptedStockpile.GlobalScriptsEMU;
+            List<string> emuKeysG = new List<string>(WarlockCore.ScriptedStockpile.GlobalScriptsEMU.Keys);
+            List<string> rtcKeysG = new List<string>(WarlockCore.ScriptedStockpile.GlobalScriptsRTC.Keys);
+
+            foreach (var emuKey in emuKeysG)
+            {
+                WarlockCore.ScriptedStockpile.GlobalScriptsEMU[emuKey] = Optimize(WarlockCore.ScriptedStockpile.GlobalScriptsEMU[emuKey]);
+            }
+            foreach (var rtcKey in rtcKeysG)
+            {
+                WarlockCore.ScriptedStockpile.GlobalScriptsRTC[rtcKey] = Optimize(WarlockCore.ScriptedStockpile.GlobalScriptsRTC[rtcKey]);
+            }
+
+            foreach (var sk in WarlockCore.ScriptedStockpile.ScriptedStashKeys)
+            {
+                sk.ScriptEMU = Optimize(sk.ScriptEMU);
+                sk.ScriptRTC = Optimize(sk.ScriptRTC);
+            }
+
+        }
+
     }
 
     class DgvScriptItem
