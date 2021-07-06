@@ -700,17 +700,32 @@ namespace Warlock.UI
 
         private void documentationToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if(S.ISNULL<Lua.LuaDocumentationForm>() || S.GET<Lua.LuaDocumentationForm>().IsDisposed)
+
+            if (!S.ISNULL<Lua.LuaDocumentationForm>())
             {
-                var form = new Lua.LuaDocumentationForm();
-                form.AddDocumentation("Default");
-                form.AddDocumentation("Warlock", WarlockCore.Bindings);
-                form.AddDocumentation("Emulator Only", Lua.LuaManager.EmulatorOnlyBindings);
-                form.AddDocumentation("UI Only", Lua.LuaManager.UIOnlyBindings);
-                //paths.AddRange(.GetAllRegisteredPaths());
-                S.SET<Lua.LuaDocumentationForm>(form);
-                form.Show(this);
+                S.GET<Lua.LuaDocumentationForm>().Close();
             }
+
+            var form = new Lua.LuaDocumentationForm();
+            form.AddDocumentation("Global");
+            form.AddDocumentation("Warlock", WarlockCore.Bindings);
+            form.AddDocumentation("Emulator Only", Lua.LuaManager.EmulatorOnlyBindings);
+            form.AddDocumentation("UI Only", Lua.LuaManager.UIOnlyBindings);
+            //paths.AddRange(.GetAllRegisteredPaths());
+            S.SET<Lua.LuaDocumentationForm>(form);
+            form.Show(this);
+
+            //if (S.ISNULL<Lua.LuaDocumentationForm>() || S.GET<Lua.LuaDocumentationForm>().IsDisposed)
+            //{
+            //    var form = new Lua.LuaDocumentationForm();
+            //    form.AddDocumentation("Default");
+            //    form.AddDocumentation("Warlock", WarlockCore.Bindings);
+            //    form.AddDocumentation("Emulator Only", Lua.LuaManager.EmulatorOnlyBindings);
+            //    form.AddDocumentation("UI Only", Lua.LuaManager.UIOnlyBindings);
+            //    //paths.AddRange(.GetAllRegisteredPaths());
+            //    S.SET<Lua.LuaDocumentationForm>(form);
+            //    form.Show(this);
+            //}
         }
 
         Regex funcRegex = new Regex(@"function\s+StepEnd\(\)|function\s+StepStart\(\)|function\s+StepPreCorrupt\(\)|function\s+StepPostCorrupt\(\)|function\s+BeforeLoadState\(\)|function\s+AfterLoadState\(\)");
