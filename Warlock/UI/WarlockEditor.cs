@@ -789,7 +789,7 @@ namespace Warlock.UI
                                 {
                                     throw new Exception();
                                     //curInd += 4;
-                                    curInd++;
+                                    //curInd++;
                                 }
                             }
                             else if (char.IsWhiteSpace(str[curInd + 4]) || str[curInd + 4] == '\r')
